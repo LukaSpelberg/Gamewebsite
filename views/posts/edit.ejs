@@ -1,0 +1,76 @@
+<div class="form-section">
+    <div class="container">
+        <div class="form-header">
+            <h1 class="form-title">Edit Article</h1>
+            <p class="form-description">Update your gaming article</p>
+        </div>
+        
+        <form action="/posts/<%= post._id %>?_method=PUT" method="POST" class="post-form">
+            <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+            <div class="error-messages">
+                <% errors.forEach(error => { %>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error.msg %>
+                </div>
+                <% }); %>
+            </div>
+            <% } %>
+            
+            <div class="form-group">
+                <label for="title" class="form-label">Title *</label>
+                <input type="text" id="title" name="title" class="form-input" 
+                       value="<%= post.title %>" 
+                       placeholder="Enter article title" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="category" class="form-label">Category *</label>
+                    <select id="category" name="category" class="form-select" required>
+                        <option value="">Select category</option>
+                        <option value="News" <%= post.category === 'News' ? 'selected' : '' %>>News</option>
+                        <option value="Reviews" <%= post.category === 'Reviews' ? 'selected' : '' %>>Reviews</option>
+                        <option value="Opinion" <%= post.category === 'Opinion' ? 'selected' : '' %>>Opinion</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" id="author" name="author" class="form-input" 
+                           value="<%= post.author %>" 
+                           placeholder="Author name">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="image" class="form-label">Featured Image URL</label>
+                <input type="url" id="image" name="image" class="form-input" 
+                       value="<%= post.image %>" 
+                       placeholder="https://example.com/image.jpg">
+            </div>
+            
+            <div class="form-group">
+                <label for="content" class="form-label">Content *</label>
+                <textarea id="content" name="content" class="form-textarea" 
+                          placeholder="Write your article content here..." required><%= post.content %></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="featured" class="form-checkbox" 
+                           <%= post.featured ? 'checked' : '' %>>
+                    <span class="checkbox-text">Feature this article on homepage</span>
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <a href="/posts/<%= post._id %>" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Update Article
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

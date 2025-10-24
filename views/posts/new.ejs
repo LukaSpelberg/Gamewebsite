@@ -1,0 +1,108 @@
+<div class="form-section">
+    <div class="container">
+        <div class="form-header">
+            <h1 class="form-title">Create New Article</h1>
+            <p class="form-description">Share your gaming insights with the community</p>
+        </div>
+        
+        <div class="form-container">
+            <form action="/posts" method="POST" class="post-form">
+            <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+            <div class="error-messages">
+                <% errors.forEach(error => { %>
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error.msg %>
+                </div>
+                <% }); %>
+            </div>
+            <% } %>
+            
+            <div class="form-group">
+                <label for="title" class="form-label">Title *</label>
+                <input type="text" id="title" name="title" class="form-input" 
+                       value="<%= typeof post !== 'undefined' ? post.title : '' %>" 
+                       placeholder="Enter article title" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="category" class="form-label">Category *</label>
+                    <select id="category" name="category" class="form-select" required>
+                        <option value="">Select category</option>
+                        <option value="News" <%= typeof post !== 'undefined' && post.category === 'News' ? 'selected' : '' %>>News</option>
+                        <option value="Reviews" <%= typeof post !== 'undefined' && post.category === 'Reviews' ? 'selected' : '' %>>Reviews</option>
+                        <option value="Opinion" <%= typeof post !== 'undefined' && post.category === 'Opinion' ? 'selected' : '' %>>Opinion</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" id="author" name="author" class="form-input" 
+                           value="<%= typeof post !== 'undefined' ? post.author : 'Editor' %>" 
+                           placeholder="Author name">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="image" class="form-label">Featured Image URL</label>
+                <input type="url" id="image" name="image" class="form-input" 
+                       value="<%= typeof post !== 'undefined' ? post.image : '' %>" 
+                       placeholder="https://example.com/image.jpg">
+            </div>
+            
+            <div class="form-group">
+                <label for="content" class="form-label">Content *</label>
+                <div class="markdown-editor-container">
+                    <div class="markdown-editor">
+                        <label for="content" class="editor-label">Markdown Editor</label>
+                        <textarea id="content" name="content" class="markdown-textarea" 
+                                  placeholder="Write your article content in Markdown..." required><%= typeof post !== 'undefined' ? post.content : '' %></textarea>
+                    </div>
+                    <div class="markdown-preview-container">
+                        <label class="editor-label preview-label">Live Preview</label>
+                        <button type="button" onclick="testMarkdownPreview()" style="margin-bottom: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Test Preview</button>
+                        <div id="markdown-preview" class="markdown-preview">
+                            <div class="preview-empty">
+                                <i class="fas fa-eye"></i><br>
+                                Start writing to see your markdown preview
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="featured" class="form-checkbox" 
+                           <%= typeof post !== 'undefined' && post.featured ? 'checked' : '' %>>
+                    <span class="checkbox-text">Feature this article on homepage</span>
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <a href="/" class="btn btn-outline">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Publish Article
+                </button>
+            </div>
+            </form>
+            
+            <!-- Preview Panel -->
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3 class="preview-title">Live Preview</h3>
+                </div>
+                <div class="preview-content">
+                    <div class="preview-article" id="preview-article">
+                        <div class="preview-empty">
+                            <i class="fas fa-eye"></i><br>
+                            Start typing to see your article preview
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

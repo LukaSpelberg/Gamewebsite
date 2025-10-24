@@ -1,0 +1,123 @@
+<div class="hero-section">
+    <div class="hero-container">
+        <% if (featuredCarousel && featuredCarousel.length) { %>
+        <div class="featured-carousel" data-interval="15000">
+            <div class="carousel-track">
+                <% featuredCarousel.forEach((post, i) => { %>
+                <a class="carousel-slide <%= i === 0 ? 'is-active' : '' %>" href="/posts/<%= post._id %>">
+                    <% if (post.image) { %>
+                        <img src="<%= post.image %>" alt="<%= post.title %>" class="carousel-img">
+                    <% } else { %>
+                        <div class="featured-placeholder"><i class="fas fa-image"></i></div>
+                    <% } %>
+                    <div class="carousel-overlay">
+                        <div class="featured-meta">
+                            <span class="category-badge category-<%= post.category.toLowerCase() %>"><%= post.category %></span>
+                            <span class="post-author">
+                                <i class="fas fa-user"></i>
+                                Written by <%= post.author || 'Editor' %>
+                            </span>
+                            <span class="post-date"><%= post.formattedDate %></span>
+                        </div>
+                        <h1 class="featured-title"><%= post.title %></h1>
+                    </div>
+                </a>
+                <% }) %>
+            </div>
+            <button class="carousel-nav prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-nav next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="carousel-dots">
+            <% featuredCarousel.forEach((_, i) => { %>
+                <button class="carousel-dot <%= i === 0 ? 'active' : '' %>" data-index="<%= i %>"></button>
+            <% }) %>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Semi-featured grid under carousel (up to 8) -->
+<div class="content-section">
+    <div class="container">
+        <% if (featuredGrid && featuredGrid.length) { %>
+        <h2 class="section-title">Featured articles</h2>
+        <div class="semi-featured-grid">
+            <% featuredGrid.forEach(post => { %>
+            <article class="semi-featured-card">
+                <div class="semi-featured-image">
+                    <% if (post.image) { %>
+                        <img src="<%= post.image %>" alt="<%= post.title %>" class="semi-featured-img">
+                    <% } else { %>
+                        <div class="semi-featured-placeholder"><i class="fas fa-image"></i></div>
+                    <% } %>
+                </div>
+                <div class="semi-featured-content">
+                    <h3 class="semi-featured-title">
+                        <a href="/posts/<%= post._id %>" class="semi-featured-link"><%= post.title %></a>
+                    </h3>
+                </div>
+            </article>
+            <% }) %>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Recent articles with category tabs -->
+<div class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
+                <h2 class="section-title">Search results for "<%= searchTerm %>"</h2>
+            <% } else { %>
+                <h2 class="section-title">Latest articles</h2>
+                <div class="tabs">
+                    <% const tabs = ['all','Reviews','News','Opinion']; %>
+                    <% tabs.forEach(tab => { %>
+                        <button class="tab <%= tab === 'all' ? 'active' : '' %>" data-category="<%= tab %>"><%= tab %></button>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (recentPosts && recentPosts.length) { %>
+        <div class="recent-list">
+            <% recentPosts.forEach(post => { %>
+            <article class="recent-item" data-category="<%= post.category %>">
+                <a class="recent-link" href="/posts/<%= post._id %>">
+                    <div class="recent-thumb">
+                        <% if (post.image) { %>
+                            <img src="<%= post.image %>" alt="<%= post.title %>">
+                        <% } else { %>
+                            <div class="post-placeholder"><i class="fas fa-image"></i></div>
+                        <% } %>
+                    </div>
+                    <div class="recent-info">
+                        <h3 class="post-title"><%= post.title %></h3>
+                        <div class="post-meta">
+                            <span class="category-badge category-<%= post.category.toLowerCase() %>"><%= post.category %></span>
+                            <span class="post-date"><i class="fas fa-calendar"></i> <%= post.formattedDate %></span>
+                            <span class="post-author"><i class="fas fa-user"></i> Written by <%= post.author || 'Editor' %></span>
+                        </div>
+                        <p class="post-excerpt"><%= post.excerpt %></p>
+                    </div>
+                </a>
+            </article>
+            <% }) %>
+        </div>
+        <% } else { %>
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-newspaper"></i></div>
+            <h3 class="empty-title">No articles found</h3>
+            <p class="empty-description">
+                <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
+                    No articles match your search for "<%= searchTerm %>".
+                <% } else { %>
+                    No articles have been published yet.
+                <% } %>
+            </p>
+            <a href="/posts/new" class="btn btn-primary">Write First Article</a>
+        </div>
+        <% } %>
+    </div>
+</div>

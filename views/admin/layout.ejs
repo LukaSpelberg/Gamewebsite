@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>Admin Panel - GameNews</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <% if (typeof useTinyMCE !== 'undefined' && useTinyMCE) { %>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <% } %>
+</head>
+<body class="admin-body">
+    <div class="admin-container">
+        <!-- Admin Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <a href="/admin" class="admin-brand">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Panel</span>
+                </a>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/admin" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'admin' ? 'active' : '' %>">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/posts" class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'posts' ? 'active' : '' %>">
+                            <i class="fas fa-newspaper"></i>
+                            All Posts
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/posts/new" class="nav-link">
+                            <i class="fas fa-plus"></i>
+                            New Post
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/" class="nav-link" target="_blank">
+                            <i class="fas fa-external-link-alt"></i>
+                            View Site
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name"><%= user.username %></div>
+                        <div class="user-role"><%= user.role %></div>
+                    </div>
+                </div>
+                <form action="/admin/logout" method="POST" class="logout-form">
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </aside>
+        
+        <!-- Admin Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-content">
+                    <h1 class="page-title"><%= typeof title !== 'undefined' ? title : 'Admin Panel' %></h1>
+                    <div class="header-actions">
+                        <a href="/" class="btn btn-outline" target="_blank">
+                            <i class="fas fa-external-link-alt"></i>
+                            View Site
+                        </a>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="admin-content">
+                <!-- Flash Messages -->
+                <% if (typeof flash !== 'undefined') { %>
+                    <% if (flash.success) { %>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <%= flash.success %>
+                    </div>
+                    <% } %>
+                    <% if (flash.error) { %>
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <%= flash.error %>
+                    </div>
+                    <% } %>
+                <% } %>
+                
+                <%- body %>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/js/main.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<div class="admin-featured">
+    <div class="posts-header">
+        <div class="header-content">
+            <h2 class="section-title">Featured Posts Manager</h2>
+            <a href="/admin/posts/new" class="btn btn-primary"><i class="fas fa-plus"></i> New Post</a>
+        </div>
+        <p class="form-description">Select which posts should be featured on the homepage. Featured posts appear in the carousel, and semi-featured posts appear in the grid below.</p>
+    </div>
+
+    <form action="/admin/featured" method="POST" class="admin-form" style="padding:0; border:none; box-shadow:none; background:transparent;">
+        <% if (posts && posts.length) { %>
+        <div class="posts-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:80px;">Featured</th>
+                        <th style="width:80px;">Semi-Featured</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Author</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% posts.forEach(post => { %>
+                    <tr>
+                        <td>
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="featured" value="<%= post._id %>" <%= post.featured ? 'checked' : '' %> />
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="semiFeatured" value="<%= post._id %>" <%= post.semiFeatured ? 'checked' : '' %> />
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td class="post-title-cell">
+                            <a href="/posts/<%= post._id %>" target="_blank" class="post-link"><%= post.title %></a>
+                            <div class="featured-badges">
+                                <% if (post.featured) { %><span class="featured-badge-small featured">Featured</span><% } %>
+                                <% if (post.semiFeatured) { %><span class="featured-badge-small semi-featured">Semi-Featured</span><% } %>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="category-badge category-<%= post.category.toLowerCase() %>"><%= post.category %></span>
+                        </td>
+                        <td><%= post.author %></td>
+                        <td><%= post.createdAt.toLocaleDateString() %></td>
+                        <td class="actions-cell">
+                            <a href="/admin/posts/<%= post._id %>/edit" class="btn btn-sm btn-outline" title="Edit"><i class="fas fa-edit"></i></a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <div class="featured-summary">
+            <div class="summary-stats">
+                <span class="stat-item">
+                    <strong id="featured-count">0</strong> Featured (Carousel)
+                </span>
+                <span class="stat-item">
+                    <strong id="semi-featured-count">0</strong> Semi-Featured (Grid)
+                </span>
+            </div>
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Featured Settings</button>
+            <a href="/admin/posts" class="btn btn-outline">Manage Posts</a>
+        </div>
+        <% } else { %>
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-newspaper"></i></div>
+            <h3 class="empty-title">No posts found</h3>
+            <p class="empty-description">Create your first post to start featuring it on the homepage.</p>
+            <a href="/admin/posts/new" class="btn btn-primary">Create First Post</a>
+        </div>
+        <% } %>
+    </form>
+</div>

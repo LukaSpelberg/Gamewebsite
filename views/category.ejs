@@ -1,0 +1,68 @@
+<div class="content-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><%= categoryName %></h2>
+      <p class="section-subtitle">Latest in <%= categoryName %></p>
+    </div>
+
+    <% if (featuredArticle) { %>
+    <article class="featured-article">
+      <a href="/posts/<%= featuredArticle._id %>" class="featured-link">
+        <div class="featured-hero">
+          <% if (featuredArticle.image) { %>
+            <img src="<%= featuredArticle.image %>" alt="<%= featuredArticle.title %>" class="featured-img">
+          <% } else { %>
+            <div class="featured-placeholder"><i class="fas fa-image"></i></div>
+          <% } %>
+        </div>
+        <div class="featured-body">
+          <div class="post-meta">
+            <span class="category-badge category-<%= featuredArticle.category.toLowerCase() %>"><%= featuredArticle.category %></span>
+            <span class="post-date"><i class="fas fa-calendar"></i> <%= featuredArticle.formattedDate %></span>
+          </div>
+          <h1 class="featured-title"><%= featuredArticle.title %></h1>
+          <p class="featured-excerpt"><%= featuredArticle.excerpt %></p>
+        </div>
+      </a>
+    </article>
+    <% } %>
+
+    <div class="section-header" style="margin-top: 2rem;">
+      <h3 class="section-title">Recent Articles</h3>
+    </div>
+
+    <% if (recentArticles && recentArticles.length) { %>
+    <div class="recent-list">
+      <% recentArticles.forEach(post => { %>
+      <article class="recent-item">
+        <a class="recent-link" href="/posts/<%= post._id %>">
+          <div class="recent-thumb">
+            <% if (post.image) { %>
+              <img src="<%= post.image %>" alt="<%= post.title %>">
+            <% } else { %>
+              <div class="post-placeholder"><i class="fas fa-image"></i></div>
+            <% } %>
+          </div>
+          <div class="recent-info">
+            <div class="post-meta">
+              <span class="category-badge category-<%= post.category.toLowerCase() %>"><%= post.category %></span>
+              <span class="post-date"><i class="fas fa-calendar"></i> <%= post.formattedDate %></span>
+            </div>
+            <h3 class="post-title"><%= post.title %></h3>
+            <p class="post-excerpt"><%= post.excerpt %></p>
+          </div>
+        </a>
+      </article>
+      <% }) %>
+    </div>
+    <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon"><i class="fas fa-newspaper"></i></div>
+      <h3 class="empty-title">No articles yet</h3>
+      <p class="empty-description">We couldn't find any articles in <%= categoryName %>.</p>
+    </div>
+    <% } %>
+  </div>
+  
+</div>
+

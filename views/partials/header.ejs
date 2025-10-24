@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>GameNews</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <a href="/" class="brand-link">
+                        <i class="fas fa-gamepad"></i>
+                        <span>GameNews</span>
+                    </a>
+                </div>
+                
+                <div class="nav-menu">
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="/news" class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'news') ? 'active' : '' %>">
+                                News
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/reviews" class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'reviews') ? 'active' : '' %>">
+                                Review
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/opinion" class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'opinion') ? 'active' : '' %>">
+                                Opinion
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- Simple Search Bar in Navigation -->
+                    <div class="nav-search">
+                        <form action="/" method="GET" class="nav-search-form">
+                            <div class="nav-search-group">
+                                <input type="text" name="search" placeholder="Search articles" 
+                                       value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>" 
+                                       class="nav-search-input">
+                                <button type="submit" class="nav-search-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Admin Link (only visible when logged in) -->
+                    <% if (typeof isLoggedIn !== 'undefined' && isLoggedIn) { %>
+                    <div class="nav-actions">
+                        <a href="/admin" class="btn btn-outline">
+                            <i class="fas fa-cog"></i>
+                            Admin
+                        </a>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Advanced Search Section (Hidden by default, can be toggled) -->
+        <div class="search-section" id="advanced-search" style="display: none;">
+            <div class="search-container">
+                <form action="/" method="GET" class="search-form">
+                    <div class="search-input-group">
+                        <input type="text" name="search" placeholder="Search articles..." 
+                               value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>" 
+                               class="search-input">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="search-filters">
+                        <select name="category" class="filter-select">
+                            <option value="all" <%= typeof currentCategory !== 'undefined' && currentCategory === 'all' ? 'selected' : '' %>>All Categories</option>
+                            <option value="News" <%= typeof currentCategory !== 'undefined' && currentCategory === 'News' ? 'selected' : '' %>>News</option>
+                            <option value="Reviews" <%= typeof currentCategory !== 'undefined' && currentCategory === 'Reviews' ? 'selected' : '' %>>Reviews</option>
+                            <option value="Opinion" <%= typeof currentCategory !== 'undefined' && currentCategory === 'Opinion' ? 'selected' : '' %>>Opinion</option>
+                        </select>
+                        <select name="sort" class="filter-select">
+                            <option value="newest" <%= typeof currentSort !== 'undefined' && currentSort === 'newest' ? 'selected' : '' %>>Newest</option>
+                            <option value="oldest" <%= typeof currentSort !== 'undefined' && currentSort === 'oldest' ? 'selected' : '' %>>Oldest</option>
+                            <option value="popular" <%= typeof currentSort !== 'undefined' && currentSort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+                            <option value="views" <%= typeof currentSort !== 'undefined' && currentSort === 'views' ? 'selected' : '' %>>Most Viewed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </header>

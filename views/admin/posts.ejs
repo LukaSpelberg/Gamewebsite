@@ -1,0 +1,120 @@
+<div class="admin-posts">
+    <div class="posts-header">
+        <div class="header-content">
+            <h2 class="section-title">All Posts</h2>
+            <div style="display:flex; gap:0.5rem;">
+                <a href="/admin" class="btn btn-outline">
+                    <i class="fas fa-star"></i>
+                    Featured Manager
+                </a>
+                <a href="/admin/posts/new" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    New Post
+                </a>
+            </div>
+        </div>
+        
+        <div class="posts-filters">
+            <form action="/admin/posts" method="GET" class="filter-form">
+                <div class="filter-group">
+                    <input type="text" name="search" placeholder="Search posts..." 
+                           value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>" 
+                           class="filter-input">
+                    <select name="category" class="filter-select">
+                        <option value="all" <%= typeof currentCategory !== 'undefined' && currentCategory === 'all' ? 'selected' : '' %>>All Categories</option>
+                        <option value="News" <%= typeof currentCategory !== 'undefined' && currentCategory === 'News' ? 'selected' : '' %>>News</option>
+                        <option value="Reviews" <%= typeof currentCategory !== 'undefined' && currentCategory === 'Reviews' ? 'selected' : '' %>>Reviews</option>
+                        <option value="Opinion" <%= typeof currentCategory !== 'undefined' && currentCategory === 'Opinion' ? 'selected' : '' %>>Opinion</option>
+                    </select>
+                    <select name="sort" class="filter-select">
+                        <option value="newest" <%= typeof currentSort !== 'undefined' && currentSort === 'newest' ? 'selected' : '' %>>Newest</option>
+                        <option value="oldest" <%= typeof currentSort !== 'undefined' && currentSort === 'oldest' ? 'selected' : '' %>>Oldest</option>
+                        <option value="popular" <%= typeof currentSort !== 'undefined' && currentSort === 'popular' ? 'selected' : '' %>>Most Popular</option>
+                        <option value="views" <%= typeof currentSort !== 'undefined' && currentSort === 'views' ? 'selected' : '' %>>Most Viewed</option>
+                    </select>
+                    <button type="submit" class="btn btn-outline">
+                        <i class="fas fa-search"></i>
+                        Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <% if (posts && posts.length > 0) { %>
+    <div class="posts-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Author</th>
+                    <th>Created</th>
+                    <th>Views</th>
+                    <th>Likes</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% posts.forEach(post => { %>
+                <tr>
+                    <td class="post-title-cell">
+                        <a href="/posts/<%= post._id %>" target="_blank" class="post-link">
+                            <%= post.title %>
+                        </a>
+                        <% if (post.featured) { %>
+                        <span class="featured-badge-small">Featured</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <span class="category-badge category-<%= post.category.toLowerCase() %>">
+                            <%= post.category %>
+                        </span>
+                    </td>
+                    <td><%= post.author %></td>
+                    <td><%= post.createdAt.toLocaleDateString() %></td>
+                    <td><%= post.views %></td>
+                    <td><%= post.likes %></td>
+                    <td>
+                        <span class="status-badge status-published">Published</span>
+                    </td>
+                    <td class="actions-cell">
+                        <a href="/posts/<%= post._id %>" target="_blank" class="btn btn-sm btn-outline" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="/admin/posts/<%= post._id %>/edit" class="btn btn-sm btn-outline" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="/admin/posts/<%= post._id %>?_method=DELETE" method="POST" class="delete-form-inline">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Delete"
+                                    onclick="return confirm('Are you sure you want to delete this post?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+    <% } else { %>
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        <h3 class="empty-title">No posts found</h3>
+        <p class="empty-description">
+            <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
+                No posts match your search for "<%= searchTerm %>".
+            <% } else { %>
+                No posts have been created yet.
+            <% } %>
+        </p>
+        <a href="/admin/posts/new" class="btn btn-primary">Create First Post</a>
+    </div>
+    <% } %>
+</div>
+
+
+

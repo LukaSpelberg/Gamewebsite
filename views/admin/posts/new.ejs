@@ -1,0 +1,181 @@
+<div class="new-post-container">
+    <div class="new-post-header">
+        <h2 class="new-post-title">Create New Post</h2>
+        <p class="new-post-description">Write a new article for your gaming website</p>
+    </div>
+    
+    <div class="new-post-layout">
+        <!-- Left Side - Form (50%) -->
+        <div class="form-section">
+            <form action="/admin/posts" method="POST" class="new-post-form">
+                <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                <div class="error-messages">
+                    <% errors.forEach(error => { %>
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <%= error.msg %>
+                    </div>
+                    <% }); %>
+                </div>
+                <% } %>
+                
+                <div class="form-group">
+                    <label for="title" class="form-label">Title *</label>
+                    <input type="text" id="title" name="title" class="form-input" 
+                           value="<%= typeof post !== 'undefined' ? post.title : '' %>" 
+                           placeholder="Enter article title" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category" class="form-label">Category *</label>
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="">Select category</option>
+                            <option value="News" <%= typeof post !== 'undefined' && post.category === 'News' ? 'selected' : '' %>>News</option>
+                            <option value="Reviews" <%= typeof post !== 'undefined' && post.category === 'Reviews' ? 'selected' : '' %>>Reviews</option>
+                            <option value="Opinion" <%= typeof post !== 'undefined' && post.category === 'Opinion' ? 'selected' : '' %>>Opinion</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="author" class="form-label">Author</label>
+                        <input type="text" id="author" name="author" class="form-input" 
+                               value="<%= typeof post !== 'undefined' ? post.author : '' %>" 
+                               placeholder="Author name">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image" class="form-label">Featured Image URL</label>
+                    <input type="url" id="image" name="image" class="form-input" 
+                           value="<%= typeof post !== 'undefined' ? post.image : '' %>" 
+                           placeholder="https://example.com/image.jpg">
+                </div>
+                
+                <div class="form-group">
+                    <label for="content" class="form-label">Content *</label>
+                    <div class="editor-toolbar">
+                        <button type="button" class="toolbar-btn" data-format="bold" title="Bold">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="italic" title="Italic">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="heading" title="Heading">
+                            <i class="fas fa-heading"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="link" title="Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="image" title="Image URL">
+                            <i class="fas fa-image"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="upload" title="Upload Image">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="list" title="List">
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="quote" title="Quote">
+                            <i class="fas fa-quote-left"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-format="code" title="Code">
+                            <i class="fas fa-code"></i>
+                        </button>
+                    </div>
+                    <textarea id="content" name="content" class="form-textarea content-editor" 
+                              placeholder="Write your article content here... Use markdown formatting or the toolbar above." required><%= typeof post !== 'undefined' ? post.content : '' %></textarea>
+                    <div class="markdown-help">
+                        <small>
+                            <strong>Markdown Tips:</strong> 
+                            # Heading | **Bold** | *Italic* | [Link](url) | ![Image](url) | 
+                            - List item | > Quote | `Code` | ```Code block```
+                        </small>
+                    </div>
+                    <!-- Hidden file input for image uploads -->
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                </div>
+                
+                <!-- Image Upload Modal -->
+                <div id="image-upload-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Upload Image</h3>
+                            <button type="button" class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="upload-area" id="upload-area">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to select an image or drag and drop</p>
+                                <small>Supports JPG, PNG, GIF, WebP (Max 5MB)</small>
+                            </div>
+                            <div class="upload-preview" id="upload-preview" style="display: none;">
+                                <img id="preview-image" src="" alt="Preview">
+                                <div class="preview-info">
+                                    <p><strong>File:</strong> <span id="file-name"></span></p>
+                                    <p><strong>Size:</strong> <span id="file-size"></span></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="image-alt-text">Alt Text (Required)</label>
+                                <input type="text" id="image-alt-text" placeholder="Describe the image for accessibility">
+                            </div>
+                            <div class="form-group">
+                                <label for="image-caption">Caption (Optional)</label>
+                                <input type="text" id="image-caption" placeholder="Optional caption for the image">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" id="cancel-upload">Cancel</button>
+                            <button type="button" class="btn btn-primary" id="confirm-upload" disabled>Upload Image</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="featured" class="form-checkbox" 
+                                   <%= typeof post !== 'undefined' && post.featured ? 'checked' : '' %>>
+                            <span class="checkbox-text">Feature this article (Carousel)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="semiFeatured" class="form-checkbox" 
+                                   <%= typeof post !== 'undefined' && post.semiFeatured ? 'checked' : '' %>>
+                            <span class="checkbox-text">Semi-feature this article (Grid)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/admin/posts" class="btn btn-outline">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Publish Article
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Right Side - Preview (50%) -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <h3 class="preview-title">Live Preview</h3>
+                <div class="preview-controls">
+                    <button type="button" id="refresh-preview" class="btn btn-sm btn-outline">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button type="button" id="toggle-preview" class="btn btn-sm btn-outline">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="preview-content" id="live-preview">
+                <div class="preview-placeholder">
+                    <i class="fas fa-eye"></i>
+                    <p>Start typing to see live preview</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
