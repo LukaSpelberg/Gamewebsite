@@ -418,20 +418,34 @@ window.GameNews = {
     validateField
 };
 
-// Featured carousel logic - Fixed for simultaneous movement
+// Featured carousel logic - improved: support external dots, prev/next, data-interval and cut-off side slides
 function initFeaturedCarousel() {
     const carousel = document.querySelector('.featured-carousel');
     if (!carousel) return;
 
     const track = carousel.querySelector('.carousel-track');
     const slides = Array.from(carousel.querySelectorAll('.carousel-slide'));
-    const dots = Array.from(carousel.querySelectorAll('.carousel-dot'));
-    const intervalMs = 5000; // 5 seconds
+    // Allow dots to live outside the carousel container (placed below the carousel in markup)
+    const dots = Array.from(document.querySelectorAll('.carousel-dot'));
+    const dataInterval = parseInt(carousel.dataset.interval, 10);
+    const intervalMs = !isNaN(dataInterval) && dataInterval > 0 ? dataInterval : 5000;
 
     if (slides.length === 0) return;
-    
-    if (slides.length < 3) {
-        slides.forEach(slide => slide.classList.add('is-active'));
+
+    // Handle 1 or 2 slides gracefully
+    if (slides.length === 1) {
+        slides[0].classList.add('is-active');
+        return;
+    }
+
+    if (slides.length === 2) {
+        // Make one active and the other visible to the side
+        slides.forEach((s, i) => s.className = 'carousel-slide');
+        slides[0].classList.add('is-left');
+        slides[1].classList.add('is-active');
+        if (dots.length >= 2) {
+            dots.forEach((d, i) => d.classList.toggle('active', i === 1));
+        }
         return;
     }
 
@@ -439,102 +453,111 @@ function initFeaturedCarousel() {
     let isAnimating = false;
     let timer;
 
-    // Calculate positions for each slide
+    // Determine logical position for each slide relative to centerIndex
     const getSlidePosition = (slideIndex, centerIndex) => {
         const diff = (slideIndex - centerIndex + slides.length) % slides.length;
-        
-        if (diff === 0) return 'center'; // Current center
-        if (diff === 1) return 'right'; // One to the right
-        if (diff === slides.length - 1) return 'left'; // One to the left
-        return 'hidden'; // Everything else
+        if (diff === 0) return 'center';
+        if (diff === 1) return 'right';
+        if (diff === slides.length - 1) return 'left';
+        return 'hidden';
     };
 
-    // Apply positions to all slides simultaneously
-    const updateAllSlides = (centerIndex) => {
-        // First pass: set all properties at once for each slide to avoid reflow
+    // Apply classes and positions to all slides in one pass
+    // Accepts newCenter and previousCenter so we can detect which slides
+    // are moving from left -> right and speed them up briefly to avoid a visible gap.
+    const updateAllSlides = (newCenter, prevCenter = null) => {
         slides.forEach((slide, i) => {
-            const position = getSlidePosition(i, centerIndex);
-            
-            // Build the new class list
-            let newClasses = ['carousel-slide'];
-            let newOrder = '999';
-            
-            switch(position) {
+            const newPos = getSlidePosition(i, newCenter);
+            const prevPos = (prevCenter === null) ? null : getSlidePosition(i, prevCenter);
+
+            // Reset base classes
+            slide.className = 'carousel-slide';
+            slide.style.order = '';
+
+            // Add new positional class
+            switch (newPos) {
                 case 'center':
-                    newClasses.push('is-active');
-                    newOrder = '1';
+                    slide.classList.add('is-active');
                     break;
                 case 'left':
-                    newClasses.push('is-left');
-                    newOrder = '0';
+                    slide.classList.add('is-left');
                     break;
                 case 'right':
-                    newClasses.push('is-right');
-                    newOrder = '2';
+                    slide.classList.add('is-right');
                     break;
                 default:
-                    newClasses.push('is-hidden');
+                    slide.classList.add('is-hidden');
             }
-            
-            // Apply all changes at once
-            slide.className = newClasses.join(' ');
-            slide.style.order = newOrder;
+
+            // If the slide moved from left -> right, make it transition quicker
+            if (prevPos === 'left' && newPos === 'right') {
+                slide.classList.add('quick');
+                // remove the quick class after the shorter duration plus small buffer
+                setTimeout(() => slide.classList.remove('quick'), 700);
+            } else {
+                // ensure quick removed for other slides
+                slide.classList.remove('quick');
+            }
         });
 
-        // Update dots
-        dots.forEach((dot, i) => {
-            if (i === centerIndex) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
+        // Update dots (global) as well
+        if (dots && dots.length) {
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === newCenter);
+            });
+        }
     };
 
-    // Go to specific slide
     const goToSlide = (index) => {
         if (isAnimating) return;
-        
         isAnimating = true;
-        currentIndex = (index + slides.length) % slides.length;
-        updateAllSlides(currentIndex);
-        
-        // Reset animation lock after transition
+        const targetIndex = (index + slides.length) % slides.length;
+        const prevIndex = currentIndex;
+        currentIndex = targetIndex;
+
+        // Pass previous index so updateAllSlides can adjust transition speed for crossing slides
+        updateAllSlides(currentIndex, prevIndex);
+
+        // Unlock after transition duration (matches CSS 1s) plus small buffer
         setTimeout(() => {
             isAnimating = false;
-        }, 1000);
-        
+        }, 1050);
+
         resetTimer();
     };
 
-    // Go to next slide
-    const nextSlide = () => {
-        goToSlide(currentIndex + 1);
-    };
+    const nextSlide = () => goToSlide(currentIndex + 1);
+    const prevSlide = () => goToSlide(currentIndex - 1);
 
-    // Reset auto-rotation timer
     function resetTimer() {
         if (timer) clearInterval(timer);
         timer = setInterval(nextSlide, intervalMs);
     }
 
-    // Dot click handlers
-    dots.forEach((dot, i) => {
-        dot.addEventListener('click', () => goToSlide(i));
-    });
+    // Attach handlers to dots (global)
+    if (dots && dots.length) {
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', (e) => {
+                e.preventDefault();
+                goToSlide(i);
+            });
+        });
+    }
 
-    // Initialize
-    updateAllSlides(currentIndex);
+    // Prev / Next buttons
+    const prevBtn = carousel.querySelector('.carousel-nav.prev');
+    const nextBtn = carousel.querySelector('.carousel-nav.next');
+
+    if (prevBtn) prevBtn.addEventListener('click', (e) => { e.preventDefault(); prevSlide(); });
+    if (nextBtn) nextBtn.addEventListener('click', (e) => { e.preventDefault(); nextSlide(); });
+
+    // Init (no previous center)
+    updateAllSlides(currentIndex, null);
     resetTimer();
 
-    // Pause on hover
-    carousel.addEventListener('mouseenter', () => {
-        if (timer) clearInterval(timer);
-    });
-
-    carousel.addEventListener('mouseleave', () => {
-        resetTimer();
-    });
+    // Pause / resume on hover
+    carousel.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); });
+    carousel.addEventListener('mouseleave', () => { resetTimer(); });
 }
 
 // Category filter functionality

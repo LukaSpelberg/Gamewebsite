@@ -229,32 +229,31 @@ h1, h2, h3, h4, h5, h6 {
 .featured-carousel {
     position: relative;
     width: 100%;
-    height: 350px;
+    height: 420px; /* increased to avoid center being clipped */
     overflow: hidden;
     z-index: 1;
 }
 
 .carousel-track {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-    justify-content: center;
+    position: relative;
     height: 100%;
     width: 100%;
-    padding: 0 2rem;
+    display: block; /* slides are positioned absolutely so track only acts as positioning context */
 }
 
+/* Each slide will be absolutely positioned. The center slide is centered; left/right slides are placed outside the viewport so they are partially visible (cut-off) when container has overflow:hidden. */
 .carousel-slide {
-    position: relative;
-    flex-shrink: 0;
-    width: 22%;
-    height: 280px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: 100%;
+    height: 380px;
     border-radius: 12px;
     overflow: hidden;
     transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     text-decoration: none;
     opacity: 0;
-    transform: scale(0.9) translateX(0);
     display: none;
 }
 
@@ -263,28 +262,44 @@ h1, h2, h3, h4, h5, h6 {
 .carousel-slide.is-active,
 .carousel-slide.is-right {
     display: block;
-    opacity: 0.85;
+    opacity: 0.95;
 }
 
-/* Left slide */
+/* Left slide - positioned left of the visible area (partially cut-off)
+   adjust the percentage to control how much of the side slides is visible */
+
+/* Positioning tuned to leave a visible gap between center and side slides.
+   Center width: 50% (half = 25%). Side width: 35% (half = 17.5%).
+   Left/right center positions chosen so side slides are partially offscreen and
+   leave a gap of ~5% between center and side slides. */
 .carousel-slide.is-left {
-    transform: scale(0.9) translateX(20px);
-    opacity: 0.85;
+    left: 10%; /* small gap to center */
+    transform: translate(-50%, -50%) scale(0.92);
+    width: 30%;
+    height: 320px;
+    z-index: 1;
 }
 
-/* Center slide - highlighted */
 .carousel-slide.is-active {
-    width: 50%;
-    height: 350px;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    width: 50%; /* center slightly narrower to create small gap */
+    height: 380px;
     opacity: 1;
-    z-index: 2;
-    transform: scale(1) translateX(0);
+    z-index: 3;
 }
 
-/* Right slide */
 .carousel-slide.is-right {
-    transform: scale(0.9) translateX(-20px);
-    opacity: 0.85;
+    left: 90%; /* small gap to center */
+    transform: translate(-50%, -50%) scale(0.92);
+    width: 30%;
+    height: 320px;
+    z-index: 1;
+}
+
+/* Faster transition for slides that need to cross from left -> right (prevents white/gap waiting) */
+.carousel-slide.quick {
+    transition-duration: 0.55s; /* quicker for long cross movement */
 }
 
 /* Hidden slides */
@@ -423,8 +438,11 @@ h1, h2, h3, h4, h5, h6 {
 .carousel-dot.active {
     background: var(--primary-green);
     border-color: var(--primary-green);
-    width: 30px;
-    border-radius: 6px;
+    /* keep circular shape and size; only color changes */
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transform: none;
 }
 
 /* Content Section */
@@ -1019,10 +1037,17 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Footer */
 .footer {
-    background: var(--text-dark);
-    color: var(--white);
+    background: var(--white);
+    color: var(--text-dark);
     padding: 3rem 0 1.5rem;
     margin-top: 4rem;
+    border-top: 2px solid var(--primary-green); /* green top border as requested */
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px; /* padding from page edges */
 }
 
 .footer-content {
@@ -1047,7 +1072,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .footer-links a {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-dark);
     text-decoration: none;
     transition: color 0.2s ease;
 }
@@ -1059,8 +1084,12 @@ h1, h2, h3, h4, h5, h6 {
 .footer-bottom {
     text-align: center;
     padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.6);
+    border-top: none;
+    color: var(--text-gray);
+}
+
+.footer-text {
+    color: var(--text-dark);
 }
 
 /* Empty State */
