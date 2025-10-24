@@ -7,7 +7,7 @@
     <div class="new-post-layout">
         <!-- Left Side - Form (50%) -->
         <div class="form-section">
-            <form action="/admin/posts" method="POST" class="new-post-form">
+            <form action="/admin/posts" method="POST" enctype="multipart/form-data" class="new-post-form">
                 <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
                 <div class="error-messages">
                     <% errors.forEach(error => { %>
@@ -48,8 +48,14 @@
                 <div class="form-group">
                     <label for="image" class="form-label">Featured Image URL</label>
                     <input type="url" id="image" name="image" class="form-input" 
-                           value="<%= typeof post !== 'undefined' ? post.image : '' %>" 
+                           value="<%= typeof post !== 'undefined' ? post.imageUrl || post.image : '' %>" 
                            placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label for="imageFile" class="form-label">Or upload an image</label>
+                    <input type="file" id="imageFile" name="imageFile" class="form-input" accept="image/*">
+                    <small class="muted">Upload will store the image in the database and override the URL field.</small>
                 </div>
                 
                 <div class="form-group">

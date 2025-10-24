@@ -2,8 +2,8 @@
     <article class="post-article">
         <!-- Hero Section with Image -->
         <div class="article-hero">
-            <% if (post.image) { %>
-                <img src="<%= post.image %>" alt="<%= post.title %>" class="article-hero-img">
+            <% if (post.imageSrc) { %>
+                <img src="<%= post.imageSrc %>" alt="<%= post.title %>" class="article-hero-img">
             <% } else { %>
                 <div class="featured-placeholder"><i class="fas fa-image"></i></div>
             <% } %>
@@ -16,8 +16,15 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="author-info">
-                        <div class="author-name"><%= post.author %></div>
-                        <div class="article-hero-date"><%= post.formattedDate %></div>
+                            <div class="author-name"><%= post.author %></div>
+                            <div class="article-hero-date"><%= post.formattedDate %></div>
+                        </div>
+                    <!-- Like button placed to the right of author info; visible to everyone -->
+                    <div class="author-like">
+                        <button class="like-btn hero-like" data-post-id="<%= post._id %>" aria-label="Like">
+                            <i class="fas fa-heart"></i>
+                            <span class="like-count"><%= post.likes %></span>
+                        </button>
                     </div>
                 </div>
                 <h1 class="article-hero-title"><%= post.title %></h1>
@@ -37,10 +44,8 @@
         <div class="container">
             
             <div class="post-actions">
-                <button class="btn btn-outline like-btn" data-post-id="<%= post._id %>">
-                    <i class="fas fa-heart"></i>
-                    Like Article (<span class="like-count"><%= post.likes %></span>)
-                </button>
+                <!-- Like button moved to hero; keep placeholder or extra controls for admins only -->
+                <% if (isLoggedIn) { %>
                 <span class="stat">
                     <i class="fas fa-eye"></i>
                     <%= post.views %> views
@@ -55,6 +60,7 @@
                         Delete
                     </button>
                 </form>
+                <% } %>
             </div>
             
             <div class="post-navigation">

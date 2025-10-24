@@ -54,6 +54,48 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0 20px;
 }
 
+/* Article link styles: make links green and underline on hover (with green underline) */
+.post-content a {
+    color: var(--primary-green);
+    text-decoration: none;
+}
+.post-content a:hover,
+.post-content a:focus {
+    color: var(--primary-green);
+    text-decoration: underline;
+    text-decoration-color: var(--primary-green);
+}
+
+/* Like button in article hero */
+.article-hero {
+    position: relative;
+}
+.author-like {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    display: flex;
+    align-items: center;
+}
+.hero-like {
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 6px 10px;
+    border-radius: 22px;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    cursor: pointer;
+    color: var(--primary-green);
+}
+.hero-like i {
+    color: var(--primary-green);
+}
+.hero-like .like-count {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
 /* Header Styles */
 .header {
     background: var(--white);

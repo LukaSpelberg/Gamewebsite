@@ -24,7 +24,12 @@ const postSchema = new mongoose.Schema({
     type: String,
     default: 'Editor'
   },
+  // Store image binary in DB (preferred). For backwards compatibility we keep an imageUrl field.
   image: {
+    data: Buffer,
+    contentType: String
+  },
+  imageUrl: {
     type: String,
     default: ''
   },
@@ -46,6 +51,19 @@ const postSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true
+});
+
+// Ensure virtuals are included when converting documents to objects/JSON
+postSchema.set('toObject', { virtuals: true });
+postSchema.set('toJSON', { virtuals: true });
+
+// Virtual to provide an image src for templates (data URL when stored in DB, otherwise fallback to imageUrl)
+postSchema.virtual('imageSrc').get(function() {
+  if (this.image && this.image.data) {
+    const base64 = this.image.data.toString('base64');
+    return `data:${this.image.contentType};base64,${base64}`;
+  }
+  return this.imageUrl || '';
 });
 
 // Index for search functionality

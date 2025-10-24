@@ -3,6 +3,11 @@ const Post = require('../models/Post');
 const { body, validationResult } = require('express-validator');
 const router = express.Router();
 const { convertMarkdownToHtml } = require('../utils/markdown');
+const multer = require('multer');
+
+// Use memory storage so uploaded files are available as buffers and can be stored directly in DB
+const storage = multer.memoryStorage();
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
 
 // Show all posts (admin view)
 router.get('/', async (req, res) => {
@@ -20,8 +25,8 @@ router.get('/new', (req, res) => {
   res.render('posts/new', { post: {}, title: 'New Post' });
 });
 
-// Create new post
-router.post('/', [
+// Create new post (supports optional file upload field `imageFile` and/or image URL input `image`)
+router.post('/', upload.single('imageFile'), [
   body('title').trim().isLength({ min: 1 }).withMessage('Title is required'),
   body('content').trim().isLength({ min: 1 }).withMessage('Content is required'),
   body('category').isIn(['News', 'Opinion', 'Reviews']).withMessage('Valid category is required')
@@ -42,9 +47,19 @@ router.post('/', [
       contentHtml: convertMarkdownToHtml(req.body.content),
       category: req.body.category,
       author: req.body.author || 'Editor',
-      image: req.body.image || '',
+      imageUrl: req.body.image || '',
       featured: req.body.featured === 'on'
     });
+
+    // If an image file was uploaded, store its buffer and mimetype in the document
+    if (req.file && req.file.buffer) {
+      post.image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+      // clear any imageUrl fallback
+      post.imageUrl = '';
+    }
 
     await post.save();
     res.redirect(`/posts/${post._id}`);
@@ -97,8 +112,8 @@ router.get('/:id/edit', async (req, res) => {
   }
 });
 
-// Update post
-router.put('/:id', [
+// Update post (supports optional file upload `imageFile`)
+router.put('/:id', upload.single('imageFile'), [
   body('title').trim().isLength({ min: 1 }).withMessage('Title is required'),
   body('content').trim().isLength({ min: 1 }).withMessage('Content is required'),
   body('category').isIn(['News', 'Opinion', 'Reviews']).withMessage('Valid category is required')
@@ -114,15 +129,26 @@ router.put('/:id', [
       });
     }
 
-    const post = await Post.findByIdAndUpdate(req.params.id, {
+    const updateData = {
       title: req.body.title,
       content: req.body.content,
       contentHtml: convertMarkdownToHtml(req.body.content),
       category: req.body.category,
       author: req.body.author || 'Editor',
-      image: req.body.image || '',
+      imageUrl: req.body.image || '',
       featured: req.body.featured === 'on'
-    }, { new: true });
+    };
+
+    // If a new file was uploaded, store it in image (and remove imageUrl fallback)
+    if (req.file && req.file.buffer) {
+      updateData.image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+      updateData.imageUrl = '';
+    }
+
+    const post = await Post.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!post) {
       return res.status(404).render('error', { error: 'Post not found' });

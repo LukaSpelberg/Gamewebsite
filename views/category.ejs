@@ -9,8 +9,8 @@
     <article class="featured-article">
       <a href="/posts/<%= featuredArticle._id %>" class="featured-link">
         <div class="featured-hero">
-          <% if (featuredArticle.image) { %>
-            <img src="<%= featuredArticle.image %>" alt="<%= featuredArticle.title %>" class="featured-img">
+          <% if (featuredArticle.imageSrc) { %>
+            <img src="<%= featuredArticle.imageSrc %>" alt="<%= featuredArticle.title %>" class="featured-img">
           <% } else { %>
             <div class="featured-placeholder"><i class="fas fa-image"></i></div>
           <% } %>
@@ -37,8 +37,8 @@
       <article class="recent-item">
         <a class="recent-link" href="/posts/<%= post._id %>">
           <div class="recent-thumb">
-            <% if (post.image) { %>
-              <img src="<%= post.image %>" alt="<%= post.title %>">
+            <% if (post.imageSrc) { %>
+              <img src="<%= post.imageSrc %>" alt="<%= post.title %>">
             <% } else { %>
               <div class="post-placeholder"><i class="fas fa-image"></i></div>
             <% } %>

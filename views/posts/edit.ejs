@@ -5,7 +5,7 @@
             <p class="form-description">Update your gaming article</p>
         </div>
         
-        <form action="/posts/<%= post._id %>?_method=PUT" method="POST" class="post-form">
+    <form action="/posts/<%= post._id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="post-form">
             <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
             <div class="error-messages">
                 <% errors.forEach(error => { %>
@@ -46,8 +46,19 @@
             <div class="form-group">
                 <label for="image" class="form-label">Featured Image URL</label>
                 <input type="url" id="image" name="image" class="form-input" 
-                       value="<%= post.image %>" 
+                       value="<%= post.imageUrl || '' %>" 
                        placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+                <label for="imageFile" class="form-label">Or upload a new image</label>
+                <input type="file" id="imageFile" name="imageFile" class="form-input" accept="image/*">
+                <small class="muted">Uploading a file will replace the current featured image.</small>
+                <% if (post.imageSrc) { %>
+                <div class="current-image-preview">
+                    <img src="<%= post.imageSrc %>" alt="Current image" style="max-width:200px; margin-top:8px; border-radius:6px; border:1px solid #e9ecef;">
+                </div>
+                <% } %>
             </div>
             
             <div class="form-group">

@@ -42,6 +42,22 @@ const upload = multer({
   }
 });
 
+// Memory upload (for storing images directly in DB). We keep disk `upload` for the rich-text-image endpoint
+const memoryUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
+});
+
 // Flash message helper
 const flash = (req, type, message) => {
   req.session[`flash${type.charAt(0).toUpperCase() + type.slice(1)}`] = message;
@@ -216,7 +232,8 @@ router.get('/posts/new', requireAuth, (req, res) => {
 });
 
 // Create post process
-router.post('/posts', requireAuth, [
+// Create post (admin) - supports optional imageFile upload (stored in DB)
+router.post('/posts', requireAuth, memoryUpload.single('imageFile'), [
   body('title').trim().isLength({ min: 1 }).withMessage('Title is required'),
   body('content').trim().isLength({ min: 1 }).withMessage('Content is required'),
   body('category').isIn(['News', 'Opinion', 'Reviews']).withMessage('Valid category is required')
@@ -238,10 +255,18 @@ router.post('/posts', requireAuth, [
       contentHtml: convertMarkdownToHtml(req.body.content), // Convert markdown to HTML
       category: req.body.category,
       author: req.body.author || req.session.user.username,
-      image: req.body.image || '',
+      imageUrl: req.body.image || '',
       featured: req.body.featured === 'on',
       semiFeatured: req.body.semiFeatured === 'on'
     });
+
+    if (req.file && req.file.buffer) {
+      post.image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+      post.imageUrl = '';
+    }
 
     await post.save();
     flash(req, 'success', 'Post created successfully!');
@@ -275,7 +300,7 @@ router.get('/posts/:id/edit', requireAuth, async (req, res) => {
 });
 
 // Update post process
-router.put('/posts/:id', requireAuth, [
+router.put('/posts/:id', requireAuth, memoryUpload.single('imageFile'), [
   body('title').trim().isLength({ min: 1 }).withMessage('Title is required'),
   body('content').trim().isLength({ min: 1 }).withMessage('Content is required'),
   body('category').isIn(['News', 'Opinion', 'Reviews']).withMessage('Valid category is required')
@@ -292,16 +317,26 @@ router.put('/posts/:id', requireAuth, [
       });
     }
 
-    const post = await Post.findByIdAndUpdate(req.params.id, {
+    const updateData = {
       title: req.body.title,
       content: req.body.content,
       contentHtml: convertMarkdownToHtml(req.body.content), // Convert markdown to HTML
       category: req.body.category,
       author: req.body.author || req.session.user.username,
-      image: req.body.image || '',
+      imageUrl: req.body.image || '',
       featured: req.body.featured === 'on',
       semiFeatured: req.body.semiFeatured === 'on'
-    }, { new: true });
+    };
+
+    if (req.file && req.file.buffer) {
+      updateData.image = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      };
+      updateData.imageUrl = '';
+    }
+
+    const post = await Post.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
     if (!post) {
       flash(req, 'error', 'Post not found');
